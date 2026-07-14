@@ -11,6 +11,7 @@ import { AppProvider, useAppState, useAppDispatch, UserPermissions } from "./sto
 import { ToastContainer } from "./components/Toast";
 import { useAuth } from "./hooks/useAuth";
 import { db, supabase, BUCKETS, getPublicUrl } from "./lib/supabase";
+import { installAutoTranslate, sweep } from "./lib/autoTranslate";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Tanks from "./pages/Tanks";
@@ -163,6 +164,11 @@ export default function App() {
     document.documentElement.dir  = i18n.dir();
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+
+  // Runtime FR→AR translation for the hard-coded French page bodies.
+  useEffect(() => { installAutoTranslate(); }, []);
+  // Re-sweep after each auth/render phase so newly mounted screens translate too.
+  useEffect(() => { if (i18n.language === 'ar') sweep(); });
 
   // While checking session
   if (auth.isLoading) return <AppLoader />;
